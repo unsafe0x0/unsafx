@@ -55,7 +55,7 @@ export function ModelSelector({
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-full left-0 mb-2 w-48 bg-popover border border-border rounded-lg shadow-lg overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100 p-1">
+        <div className="absolute bottom-full left-0 mb-2 w-48 bg-popover border border-border rounded-lg overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100 p-1">
           {models.map((model) => (
             <button
               key={model.id}
