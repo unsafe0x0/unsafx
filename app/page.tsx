@@ -173,7 +173,7 @@ export default function ChatInterface() {
       </header>
 
       <main className="flex-1 overflow-y-auto pt-24 pb-32 px-4 sm:px-6">
-        <div className="max-w-3xl mx-auto flex flex-col gap-6">
+        <div className="max-w-5xl mx-auto flex flex-col gap-6">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-[50vh] text-center text-muted-foreground animate-in fade-in duration-500">
               <p className="text-sm">
@@ -205,7 +205,7 @@ export default function ChatInterface() {
       </main>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 sm:p-6 bg-linear-to-t from-background via-background to-transparent z-20">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="relative flex flex-col bg-background border border-border rounded-xl focus-within:ring-1 focus-within:ring-border transition-all shadow-sm">
             <textarea
               ref={textareaRef}
