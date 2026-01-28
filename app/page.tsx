@@ -121,7 +121,7 @@ export default function ChatInterface() {
       />
 
       <main className="flex-1 overflow-y-auto pt-24 pb-32 px-4 sm:px-6 scrollbar-hide">
-        <div className="max-w-5xl mx-auto flex flex-col gap-6">
+        <div className="max-w-4xl mx-auto flex flex-col gap-6">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-[50vh] text-center text-muted-foreground animate-in fade-in duration-500 select-none gap-4">
               <Image

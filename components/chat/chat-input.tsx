@@ -45,7 +45,7 @@ export function ChatInput({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 p-4 sm:p-6 bg-linear-to-t from-background via-background to-transparent z-20">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="relative flex flex-col bg-background border border-border rounded-xl focus-within:ring-1 focus-within:ring-border transition-all">
           <textarea
             ref={textareaRef}

@@ -1,57 +1,64 @@
-import { OpenRouter } from "@openrouter/sdk";
-import { NextResponse } from "next/server";
+import { OpenAI } from "openai";
 
-const openRouter = new OpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY,
-});
+export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { messages } = body;
+    const { messages, model } = await req.json();
 
-    if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json(
-        { error: "Messages array is required" },
-        { status: 400 },
-      );
-    }
-
-    const model = body.model || "meta-llama/llama-3.2-3b-instruct:free";
-
-    const result = await openRouter.chat.send({
-      messages,
-      model,
-      stream: true,
+    const client = new OpenAI({
+      baseURL: "https://api.groq.com/openai/v1",
+      apiKey: process.env.GROQ_API_KEY,
     });
 
-    const stream = new ReadableStream({
+    const systemPrompt = process.env.SYSTEM_PROMPT || "";
+    const finalMessages = [
+      { role: "system", content: systemPrompt },
+      ...messages,
+    ];
+
+    const stream = await client.chat.completions.create({
+      model: model || "llama-3.3-70b-versatile",
+      messages: finalMessages,
+      stream: true,
+      max_tokens: 2048,
+      temperature: 0.7,
+    });
+
+    const encoder = new TextEncoder();
+    const readable = new ReadableStream({
       async start(controller) {
         try {
-          for await (const chunk of result) {
-            const content = chunk.choices[0]?.delta?.content || "";
-            if (content) {
-              controller.enqueue(new TextEncoder().encode(content));
-            }
+          for await (const chunk of stream) {
+            const content = chunk.choices?.[0]?.delta?.content || "";
+            if (content) controller.enqueue(encoder.encode(content));
           }
+        } catch (err: any) {
+          const msg =
+            err?.message ||
+            (typeof err === "string" ? err : "Unknown upstream error");
+          controller.enqueue(
+            encoder.encode(`Error from upstream provider: ${msg}`),
+          );
+        } finally {
           controller.close();
-        } catch (err) {
-          console.error("Streaming error:", err);
-          controller.error(err);
         }
       },
     });
 
-    return new Response(stream, {
+    return new Response(readable, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
       },
     });
-  } catch (error) {
-    console.error("Error in chat route:", error);
-    return NextResponse.json(
-      { error: "Failed to process chat request" },
-      { status: 500 },
-    );
+  } catch (err: any) {
+    const msg =
+      err?.message || (typeof err === "string" ? err : "Unknown error");
+    return new Response(JSON.stringify({ error: msg }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

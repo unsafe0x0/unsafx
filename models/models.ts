@@ -1,10 +1,18 @@
 export const models = [
   {
-    id: "arcee-ai/trinity-large-preview:free",
-    name: "Trinity",
+    id: "openai/gpt-oss-120b",
+    name: "GPT-120B",
   },
   {
-    id: "z-ai/glm-4.5-air:free",
-    name: "GLM-4.5",
+    id: "openai/gpt-oss-20b",
+    name: "GPT-20B",
+  },
+  {
+    id: "llama-3.3-70b-versatile",
+    name: "Llama 3.3",
+  },
+  {
+    id: "meta-llama/llama-4-maverick-17b-128e-instruct",
+    name: "Llama 4",
   },
 ];
