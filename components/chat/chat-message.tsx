@@ -7,6 +7,8 @@ interface ChatMessageProps {
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export function ChatMessage({ role, content }: ChatMessageProps) {
   return (
@@ -40,15 +42,17 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
             code({ children, className, ...props }: any) {
               const match = /language-(\w+)/.exec(className || "");
               return match ? (
-                <code
-                  className={cn(
-                    "bg-muted px-1.5 py-0.5 rounded font-mono text-xs",
-                    className,
-                  )}
+                <SyntaxHighlighter
                   {...props}
+                  style={vscDarkPlus}
+                  language={match[1]}
+                  PreTag="div"
+                  className="rounded-lg border border-border my-4"
+                  showLineNumbers={false}
+                  wrapLines={false}
                 >
-                  {children}
-                </code>
+                  {String(children).replace(/\n$/, "")}
+                </SyntaxHighlighter>
               ) : (
                 <code
                   className={cn(
@@ -63,7 +67,7 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
             },
             pre({ children }) {
               return (
-                <pre className="bg-muted p-3 rounded-lg overflow-x-auto my-2 text-xs font-mono">
+                <pre className="overflow-x-auto rounded-lg my-2">
                   {children}
                 </pre>
               );
