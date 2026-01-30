@@ -6,6 +6,7 @@ interface ChatMessageProps {
 }
 
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export function ChatMessage({ role, content }: ChatMessageProps) {
   return (
@@ -107,7 +108,48 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
                 </blockquote>
               );
             },
+            table({ children }) {
+              return (
+                <div className="overflow-x-auto my-4 rounded-lg border border-border bg-card">
+                  <table className="w-full text-sm border-collapse">
+                    {children}
+                  </table>
+                </div>
+              );
+            },
+            thead({ children }) {
+              return (
+                <thead className="bg-muted border-b border-border">
+                  {children}
+                </thead>
+              );
+            },
+            tbody({ children }) {
+              return <tbody className="bg-card">{children}</tbody>;
+            },
+            tr({ children }) {
+              return (
+                <tr className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
+                  {children}
+                </tr>
+              );
+            },
+            th({ children }) {
+              return (
+                <th className="px-4 py-2 text-left font-medium text-muted-foreground [&[align=center]]:text-center [&[align=right]]:text-right">
+                  {children}
+                </th>
+              );
+            },
+            td({ children }) {
+              return (
+                <td className="px-4 py-2 text-foreground [&[align=center]]:text-center [&[align=right]]:text-right">
+                  {children}
+                </td>
+              );
+            },
           }}
+          remarkPlugins={[remarkGfm]}
         >
           {content}
         </ReactMarkdown>
