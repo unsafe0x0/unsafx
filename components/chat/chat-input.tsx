@@ -1,7 +1,7 @@
-import { useRef, useEffect } from "react";
 import { PaperPlaneRight } from "@phosphor-icons/react";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef } from "react";
 import { ModelSelector } from "@/components/ui/model-selector";
+import { cn } from "@/lib/utils";
 import { models } from "@/models/models";
 
 interface ChatInputProps {
@@ -28,7 +28,7 @@ export function ChatInput({
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [input]);
+  });
 
   useEffect(() => {
     if (!isLoading && textareaRef.current) {
@@ -66,6 +66,7 @@ export function ChatInput({
             />
 
             <button
+              type="button"
               onClick={onSubmit}
               disabled={!input.trim() || isLoading}
               className={cn(
@@ -79,9 +80,6 @@ export function ChatInput({
               <PaperPlaneRight size={14} weight="fill" />
             </button>
           </div>
-        </div>
-        <div className="text-center mt-2">
-          {/* Disclaimer removed as per request */}
         </div>
       </div>
     </div>

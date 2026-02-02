@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { Moon, Sun } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
@@ -10,6 +9,7 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   return (
     <button
+      type="button"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className={cn(
         "p-2 rounded-md hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground relative group",

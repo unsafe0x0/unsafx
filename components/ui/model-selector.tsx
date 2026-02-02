@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import { CaretDown, Check } from "@phosphor-icons/react";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface Model {
@@ -44,6 +44,7 @@ export function ModelSelector({
   return (
     <div className={cn("relative", className)} ref={dropdownRef}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-secondary transition-colors text-xs font-medium text-foreground bg-background border border-border"
       >
@@ -58,6 +59,7 @@ export function ModelSelector({
         <div className="absolute bottom-full left-0 mb-2 w-48 bg-popover border border-border rounded-lg overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100 p-1">
           {models.map((model) => (
             <button
+              type="button"
               key={model.id}
               onClick={() => {
                 onSelect(model.id);

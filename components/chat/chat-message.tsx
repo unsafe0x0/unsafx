@@ -1,3 +1,9 @@
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+
 import { cn } from "@/lib/utils";
 
 interface ChatMessageProps {
@@ -5,16 +11,11 @@ interface ChatMessageProps {
   content: string;
 }
 
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-
 export function ChatMessage({ role, content }: ChatMessageProps) {
   return (
     <div
       className={cn(
-        "flex flex-col max-w-[90%] sm:max-w-[90%] rounded-2xl px-5 py-4 text-sm leading-relaxed transition-all duration-200",
+        "flex flex-col max-w-[90%] rounded-2xl px-5 py-4 text-sm leading-relaxed transition-all duration-200",
         role === "user"
           ? "self-end bg-accent text-accent-foreground ml-auto"
           : "self-start bg-card text-card-foreground",
@@ -39,7 +40,11 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
             li({ children }) {
               return <li className="mb-1 last:mb-0">{children}</li>;
             },
-            code({ children, className, ...props }: any) {
+            code({
+              children,
+              className,
+              ...props
+            }: React.ComponentPropsWithoutRef<"code">) {
               const match = /language-(\w+)/.exec(className || "");
               return match ? (
                 <SyntaxHighlighter
@@ -107,7 +112,7 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
             },
             blockquote({ children }) {
               return (
-                <blockquote className="border-l-2 border-primary pl-4 py-1 my-2 bg-muted/30 italic">
+                <blockquote className="border-l-2 border-border pl-4 py-1 my-2 bg-muted/30 italic">
                   {children}
                 </blockquote>
               );
@@ -138,22 +143,26 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
                 </tr>
               );
             },
-            th({ children }) {
+            th({ children, ...props }) {
               return (
-                <th className="px-4 py-2 text-left font-medium text-muted-foreground [&[align=center]]:text-center [&[align=right]]:text-right">
+                <th
+                  className="px-4 py-2 text-left font-medium text-muted-foreground"
+                  {...props}
+                >
                   {children}
                 </th>
               );
             },
-            td({ children }) {
+            td({ children, ...props }) {
               return (
-                <td className="px-4 py-2 text-foreground [&[align=center]]:text-center [&[align=right]]:text-right">
+                <td className="px-4 py-2 text-foreground" {...props}>
                   {children}
                 </td>
               );
             },
           }}
           remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
         >
           {content}
         </ReactMarkdown>

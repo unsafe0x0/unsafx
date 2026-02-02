@@ -4,7 +4,7 @@ export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {
-    const { messages, model } = await req.json();
+    const { messages, model, customInstructions, tone } = await req.json();
 
     const client = new OpenAI({
       baseURL: "https://api.groq.com/openai/v1",
@@ -12,9 +12,22 @@ export async function POST(req: Request) {
     });
 
     const systemPrompt = process.env.SYSTEM_PROMPT || "";
+    let finalSystemPrompt = systemPrompt;
+
+    if (customInstructions) {
+      finalSystemPrompt += `\n\nUser Custom Instructions:\n${customInstructions}`;
+    }
+
+    if (tone && tone !== "Standard") {
+      finalSystemPrompt += `\n\nResponse Tone: ${tone}`;
+    }
+
     const finalMessages = [
-      { role: "system", content: systemPrompt },
-      ...messages,
+      { role: "system", content: finalSystemPrompt },
+      ...messages.map((msg: any) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
     ];
 
     const stream = await client.chat.completions.create({
@@ -33,10 +46,8 @@ export async function POST(req: Request) {
             const content = chunk.choices?.[0]?.delta?.content || "";
             if (content) controller.enqueue(encoder.encode(content));
           }
-        } catch (err: any) {
-          const msg =
-            err?.message ||
-            (typeof err === "string" ? err : "Unknown upstream error");
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
           controller.enqueue(
             encoder.encode(`Error from upstream provider: ${msg}`),
           );
@@ -53,9 +64,8 @@ export async function POST(req: Request) {
         Connection: "keep-alive",
       },
     });
-  } catch (err: any) {
-    const msg =
-      err?.message || (typeof err === "string" ? err : "Unknown error");
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     return new Response(JSON.stringify({ error: msg }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

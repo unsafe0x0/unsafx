@@ -2,14 +2,15 @@
 
 import Image from "next/image";
 
-import { useState, useRef, useEffect } from "react";
-import { useLocalStorage } from "@/hooks/use-local-storage";
-import { models } from "@/models/models";
+import { useEffect, useRef, useState } from "react";
 import { ChatHeader } from "@/components/chat/chat-header";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ChatMessage } from "@/components/chat/chat-message";
 import { HistoryModal } from "@/components/chat/history-modal";
-import { Message, HistoryItem } from "@/lib/types";
+import { SettingsModal } from "@/components/settings/settings-modal";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import type { HistoryItem, Message } from "@/lib/types";
+import { models } from "@/models/models";
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -23,6 +24,13 @@ export default function ChatInterface() {
     [],
   );
 
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [customInstructions, setCustomInstructions] = useLocalStorage(
+    "chat-custom-instructions",
+    "",
+  );
+  const [tone, setTone] = useLocalStorage("chat-tone", "Standard");
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -31,7 +39,7 @@ export default function ChatInterface() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  });
 
   const handleNewChat = () => {
     if (messages.length > 0) {
@@ -51,7 +59,11 @@ export default function ChatInterface() {
   };
 
   const loadHistory = (item: HistoryItem) => {
-    setMessages(item.messages);
+    const messagesWithIds = item.messages.map((msg) => ({
+      ...msg,
+      id: msg.id || crypto.randomUUID(),
+    }));
+    setMessages(messagesWithIds);
     setIsHistoryOpen(false);
   };
 
@@ -63,7 +75,11 @@ export default function ChatInterface() {
   const handleSubmit = async () => {
     if (!input.trim() || isLoading) return;
 
-    const userMessage: Message = { role: "user", content: input };
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: input,
+    };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -75,6 +91,8 @@ export default function ChatInterface() {
         body: JSON.stringify({
           messages: [...messages, userMessage],
           model: selectedModel,
+          customInstructions,
+          tone,
         }),
       });
 
@@ -85,7 +103,10 @@ export default function ChatInterface() {
       const decoder = new TextDecoder();
       let assistantMessage = "";
 
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+      setMessages((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), role: "assistant", content: "" },
+      ]);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -106,7 +127,11 @@ export default function ChatInterface() {
       console.error(error);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Error: Failed to generate response." },
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: "Error: Failed to generate response.",
+        },
       ]);
     } finally {
       setIsLoading(false);
@@ -118,6 +143,7 @@ export default function ChatInterface() {
       <ChatHeader
         onNewChat={handleNewChat}
         onOpenHistory={() => setIsHistoryOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       <main className="flex-1 overflow-y-auto pt-24 pb-32 px-4 sm:px-6 scrollbar-hide">
@@ -136,8 +162,8 @@ export default function ChatInterface() {
               </p>
             </div>
           ) : (
-            messages.map((msg, idx) => (
-              <ChatMessage key={idx} role={msg.role} content={msg.content} />
+            messages.map((msg) => (
+              <ChatMessage key={msg.id} role={msg.role} content={msg.content} />
             ))
           )}
           {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
@@ -164,6 +190,15 @@ export default function ChatInterface() {
         history={history}
         onLoadHistory={loadHistory}
         onDeleteHistory={deleteHistoryItem}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        customInstructions={customInstructions}
+        setCustomInstructions={setCustomInstructions}
+        tone={tone}
+        setTone={setTone}
       />
     </div>
   );

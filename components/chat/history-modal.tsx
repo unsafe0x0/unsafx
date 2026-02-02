@@ -1,5 +1,5 @@
-import { X, Trash } from "@phosphor-icons/react";
-import { HistoryItem } from "@/lib/types";
+import { Trash, X } from "@phosphor-icons/react";
+import type { HistoryItem } from "@/lib/types";
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -20,11 +20,18 @@ export function HistoryModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-24 bg-background/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="fixed inset-0" onClick={onClose} />
+      <button
+        type="button"
+        className="fixed inset-0 w-full h-full cursor-default focus:outline-none"
+        onClick={onClose}
+        aria-label="Close modal"
+        tabIndex={-1}
+      />
       <div className="relative w-full max-w-4xl bg-background border border-border rounded-xl flex flex-col max-h-[70vh] animate-in slide-in-from-top-10 fade-in duration-200 ring-1 ring-border">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h2 className="text-sm font-medium">History</h2>
           <button
+            type="button"
             onClick={onClose}
             className="p-1 hover:bg-secondary rounded-md text-muted-foreground transition-colors"
           >
@@ -41,10 +48,13 @@ export function HistoryModal({
               {history.map((item) => (
                 <div
                   key={item.id}
-                  onClick={() => onLoadHistory(item)}
-                  className="group relative flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 cursor-pointer transition-all duration-200 border border-transparent hover:border-border/50"
+                  className="group relative flex items-center justify-between p-1 rounded-lg hover:bg-accent/50 transition-all duration-200 border border-transparent hover:border-border/50"
                 >
-                  <div className="flex flex-col gap-1 min-w-0 pr-8">
+                  <button
+                    type="button"
+                    onClick={() => onLoadHistory(item)}
+                    className="flex-1 flex flex-col gap-1 min-w-0 pr-8 p-2 text-left rounded-md"
+                  >
                     <span className="text-sm font-medium truncate text-foreground/90 group-hover:text-foreground transition-colors">
                       {item.preview || "New Conversation"}
                     </span>
@@ -55,9 +65,10 @@ export function HistoryModal({
                         year: "numeric",
                       })}
                     </span>
-                  </div>
+                  </button>
 
                   <button
+                    type="button"
                     onClick={(e) => onDeleteHistory(e, item.id)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-all duration-200"
                     title="Delete"
